@@ -1,27 +1,68 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+@extends('layouts.app')
 
-        <title>Laravel</title>
+@section('content')
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    {{-- MAIN HERO --}}
+    <main class="flex-1 flex items-center justify-center px-6 py-10">
+        {{-- Visitor Identity Form --}}
+        <section class="relative z-10 py-14 bg-[#0D0F0A]/90 border-t border-[#2F3426]">
+            <div class="max-w-xl mx-auto px-6">
 
-    </head>
-    <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
-        <header class="w-full lg:max-w-4xl max-w-[335px] text-sm mb-6 not-has-[nav]:hidden">
-           
-        </header>
-        <main class="w-full lg:max-w-4xl max-w-md text-center">
-            <h1 class="text-3xl lg:text-4xl font-semibold mb-4">Welcome to Laravel</h1>
-            <p class="text-base lg:text-lg mb-6">Your landing page is ready. Start building your application!</p>
-            {{-- <a href="{{ route('landing') }}" class="btn btn-primary btn-lg">Go to Home</a> --}}
+                <h2 class="text-center text-2xl font-semibold text-[#ffffff] mb-8 tracking-wide">
+                    Personnel Access Verification
+                </h2>
 
-        @if (Route::has('login'))
-            <div class="h-14.5 hidden lg:block"></div>
-        @endif
-    </body> 
-</html>
+                <form action="{{ route('visitor.enter') }}" method="POST" class="space-y-6">
+                    @csrf
+
+                    {{-- Full Name --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+                        <input type="text" name="name"
+                            class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] focus:border-[#C7B98E] outline-none"
+                            placeholder="Juan Dela Cruz" required>
+                    </div>
+
+                    {{-- Badge Number --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Badge Number</label>
+                        <input type="text" name="badge_number"
+                            class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] focus:border-[#C7B98E] outline-none"
+                            placeholder="e.g. 20231457" required>
+                    </div>
+
+                    {{-- Division --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Division</label>
+                        <select name="division"
+                                class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] focus:border-[#C7B98E] outline-none"
+                                required>
+                            <option value="" disabled selected>-- Select Division --</option>
+                            <option>Infantry</option>
+                            <option>Artillery</option>
+                            <option>Armor</option>
+                            <option>Engineering</option>
+                            <option>Intelligence</option>
+                            <option>Communications</option>
+                            <option>Logistics</option>
+                            <option>Medical Corps</option>
+                            <option>Others</option>
+                        </select>
+                    </div>
+
+                    {{-- Submit --}}
+                    <div class="text-center pt-4">
+                        <button type="submit"
+                                class="px-8 py-3.5 bg-[#C7B98E] text-black font-semibold rounded-md shadow-md hover:bg-[#B8A67B] transition">
+                            Proceed to Portal
+                        </button>
+                    </div>
+                </form>
+
+                <p class="mt-6 text-center text-[12px] text-gray-500 tracking-wide">
+                    Unauthorized personnel are subject to monitoring and access restrictions
+                </p>
+            </div>
+        </section>
+
+@endsection
