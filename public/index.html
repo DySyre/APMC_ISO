@@ -1,2 +1,124 @@
-<link rel="stylesheet" href="/build/style.css">
-<script type="module" src="/build/main.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Army Command Portal</title>
+
+  <!-- Vite-built CSS & JS (update filenames to match your build folder) -->
+  <link rel="preload" as="style" href="/build/assets/app-BI8SeOEk.css" />
+  <link rel="modulepreload" as="script" href="/build/assets/app-uDqyCSTo.js" />
+  <link rel="stylesheet" href="/build/assets/app-BI8SeOEk.css" />
+  <script type="module" src="/build/assets/app-uDqyCSTo.js"></script>
+
+  <link rel="preconnect" href="https://fonts.bunny.net">
+  <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+</head>
+
+<body class="bg-[#FDFDFC] dark:bg-[#020617] text-[#1b1b18] dark:text-slate-100 min-h-screen flex flex-col">
+
+  <header class="relative z-10 border-b border-green-900/60 bg-black/80 backdrop-blur">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center">
+          <img
+            src="/image/pa-logo.png"
+            alt="PA Logo"
+            class="h-14 w-auto object-contain">
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-6 text-xs font-medium tracking-wide">
+        <a href="#top" class="hover:text-green-300 transition">HOME</a>
+        <a href="#about" class="hover:text-green-300 transition">ABOUT</a>
+        <a href="#features" class="hover:text-green-300 transition">FEATURES</a>
+        <a href="#contact" class="hover:text-green-300 transition">CONTACT</a>
+      </nav>
+
+      <button id="themeToggle"
+        class="px-3 py-1 text-xs rounded border border-gray-400/50 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+        Toggle Theme
+      </button>
+    </div>
+  </header>
+
+  <main id="top" class="flex-1 flex items-center justify-center px-6 py-10">
+    <section class="relative z-10 py-14 bg-[#0D0F0A]/90 border-t border-[#2F3426]">
+      <div class="max-w-xl mx-auto px-6">
+        <h2 class="text-center text-2xl font-semibold text-[#ffffff] mb-8 tracking-wide">
+          Personnel Access Verification
+        </h2>
+
+        <!-- For portfolio preview, we prevent real submit -->
+        <form action="#" method="POST" class="space-y-6" onsubmit="event.preventDefault()">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+            <input type="text" name="name"
+              class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] focus:border-[#C7B98E] outline-none"
+              placeholder="Juan Dela Cruz" required>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Badge Number</label>
+            <input type="text" name="badge_number"
+              class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] focus:border-[#C7B98E] outline-none"
+              placeholder="e.g. 20231457" required>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Division</label>
+            <select name="division"
+              class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] focus:border-[#C7B98E] outline-none"
+              required>
+              <option value="" disabled selected>-- Select Division --</option>
+              <option>Infantry</option>
+              <option>Artillery</option>
+              <option>Armor</option>
+              <option>Engineering</option>
+              <option>Intelligence</option>
+              <option>Communications</option>
+              <option>Logistics</option>
+              <option>Medical Corps</option>
+              <option>Others</option>
+            </select>
+          </div>
+
+          <div class="text-center pt-4">
+            <button type="submit"
+              class="px-8 py-3.5 bg-[#C7B98E] text-black font-semibold rounded-md shadow-md hover:bg-[#B8A67B] transition">
+              Proceed to Portal
+            </button>
+          </div>
+        </form>
+
+        <p class="mt-6 text-center text-[12px] text-gray-500 tracking-wide">
+          Unauthorized personnel are subject to monitoring and access restrictions
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const html = document.documentElement;
+    if (localStorage.getItem('theme') === 'dark') {
+      html.classList.add('dark');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggle = document.getElementById('themeToggle');
+      if (!toggle) return;
+
+      toggle.addEventListener('click', () => {
+        if (html.classList.contains('dark')) {
+          html.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+        } else {
+          html.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
