@@ -11,6 +11,7 @@ class VisitorController extends Controller
 {
     public function storeVisitor(Request $request)
     {
+        // 🔐 Validate incoming form
         $data = $request->validate([
             'first_name'   => ['required', 'string', 'max:255'],
             'last_name'    => ['required', 'string', 'max:255'],
@@ -18,24 +19,27 @@ class VisitorController extends Controller
             'division'     => ['required', 'string', 'max:255'],
         ]);
 
-        // Try to find existing user by badge number
+        // 🔎 Try to find existing user by badge_number
         $user = User::where('badge_number', $data['badge_number'])->first();
 
-        if (!$user) {
-            // Create new user (self-populating)
+        if (! $user) {
+            // 🆕 First time visitor → create new user (default = User role 3)
             $user = User::create([
                 'first_name'   => $data['first_name'],
                 'last_name'    => $data['last_name'],
-                'name'         => $data['first_name'].' '.$data['last_name'], // keep default name filled
+                'name'         => $data['first_name'].' '.$data['last_name'],
                 'badge_number' => $data['badge_number'],
                 'division'     => $data['division'],
-                'role'         => 3, // default = User
+                'role'         => 3, // 3 = User, 2 = Leader, 1 = Admin
+
+                // placeholder email/password (not used for this badge login)
                 'email'        => $data['badge_number'].'@placeholder.local',
                 'password'     => Hash::make(Str::random(16)),
+
                 'last_login_at'=> now(),
             ]);
         } else {
-            // Update existing user basic info + last login
+            // 🔁 Existing user → update basic info and last login
             $user->update([
                 'first_name'   => $data['first_name'],
                 'last_name'    => $data['last_name'],
@@ -45,21 +49,20 @@ class VisitorController extends Controller
             ]);
         }
 
-        // Save in session who is currently inside
-       session(['visitor_user_id' => $user->id]);
+        // 💾 Save "who is logged in" in session
+        session(['visitor_user_id' => $user->id]);
 
-    // ROLE REDIRECTION
-    switch ($user->role) {
-        case 1: // Admin
-            return redirect()->route('admin.dashboard');
+        // 🎯 ROLE-BASED LANDING
+        switch ($user->role) {
+            case 1: // Admin
+                return redirect()->route('admin.dashboard');
 
-        case 2: // Leader
-            return redirect()->route('leader.dashboard');
+            case 2: // Leader
+                return redirect()->route('leader.dashboard');
 
-        case 3: // User
-        default:
-            return redirect()->route('documents.index');
+            case 3: // User (default)
+            default:
+                return redirect()->route('documents.index');
+        }
     }
-    }
-   
 }

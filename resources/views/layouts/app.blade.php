@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="army">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{{ asset('favicon.png') }}">
 
     <title>Army Command Portal</title>
 
@@ -28,22 +29,32 @@
     {{-- Global Theme Script --}}
     <script>
         const html = document.documentElement;
-        if (localStorage.getItem('theme') === 'dark') {
-            html.classList.add('dark');
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                html.classList.add('dark');
+                html.setAttribute('data-theme', 'army'); // use army colors when dark
+            } else {
+                html.classList.remove('dark');
+                html.setAttribute('data-theme', 'light'); // or any other theme name
+            }
         }
+
+        // Initial load
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
 
         document.addEventListener('DOMContentLoaded', () => {
             const toggle = document.getElementById('themeToggle');
             if (!toggle) return;
 
+            // optional: sync initial toggle state
+            toggle.checked = savedTheme === 'dark';
+
             toggle.addEventListener('click', () => {
-                if (html.classList.contains('dark')) {
-                    html.classList.remove('dark');
-                    localStorage.setItem('theme', 'light');
-                } else {
-                    html.classList.add('dark');
-                    localStorage.setItem('theme', 'dark');
-                }
+                const nextTheme = html.classList.contains('dark') ? 'light' : 'dark';
+                localStorage.setItem('theme', nextTheme);
+                applyTheme(nextTheme);
             });
         });
     </script>
