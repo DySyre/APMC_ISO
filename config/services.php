@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    //ilovepdf api config
+    'ilovepdf' => [
+        'public' => env('ILOVEPDF_PUBLIC_KEY'),
+        'secret' => env('ILOVEPDF_SECRET_KEY'),
+    ],
+
 ];

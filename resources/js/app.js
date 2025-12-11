@@ -1,37 +1,34 @@
 import '../css/app.css';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const html = document.documentElement;
     const toggle = document.getElementById('themeToggle');
-    const root = document.documentElement; // <html>
 
     if (!toggle) {
-        console.warn('theme-toggle checkbox not found');
+        console.warn('themeToggle not found');
         return;
     }
 
-    // Load stored theme
-    const storedTheme = localStorage.getItem('theme');
+    // Load theme from localStorage, default to 'dark'
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme, html, toggle);
 
-    if (storedTheme === 'dark') {
-        root.classList.add('dark');
-        toggle.checked = true;
-    } else if (storedTheme === 'light') {
-        root.classList.remove('dark');
-        toggle.checked = false;
-    } else {
-        // default (you can change to light if you want)
-        root.classList.add('dark');
-        toggle.checked = true;
-    }
-
-    // Listen for changes
+    // When slider changes
     toggle.addEventListener('change', () => {
-        if (toggle.checked) {
-            root.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            root.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
+        const newTheme = toggle.checked ? 'dark' : 'light';
+        localStorage.setItem('theme', newTheme);
+        applyTheme(newTheme, html, toggle);
     });
 });
+
+function applyTheme(theme, html, toggle) {
+    if (theme === 'dark') {
+        html.classList.add('dark');
+        html.setAttribute('data-theme', 'army'); // DaisyUI or custom "army" theme
+        toggle.checked = true;
+    } else {
+        html.classList.remove('dark');
+        html.setAttribute('data-theme', 'light'); // or any other theme name
+        toggle.checked = false;
+    }
+}

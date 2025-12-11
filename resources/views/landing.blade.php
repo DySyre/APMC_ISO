@@ -15,21 +15,48 @@
                 <form action="{{ route('visitor.enter') }}" method="POST" class="space-y-6">
                     @csrf
 
-                    {{-- Full Name --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
-                        <input type="text" name="name"
-                            class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] focus:border-[#C7B98E] outline-none"
-                            placeholder="Juan Dela Cruz" required>
-                    </div>
+                    {{-- First & Last Name --}}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {{-- First Name --}}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-1">First Name</label>
+                                <input type="text" name="first_name"
+                                    class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] outline-none"
+                                    placeholder="Juan" required>
+                            </div>
+
+                            {{-- Last Name --}}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-1">Last Name</label>
+                                <input type="text" name="last_name"
+                                    class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] outline-none"
+                                    placeholder="Dela Cruz" required>
+                            </div>
+                        </div>
 
                     {{-- Badge Number --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Badge Number</label>
-                        <input type="text" name="badge_number"
-                            class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] focus:border-[#C7B98E] outline-none"
-                            placeholder="e.g. 20231457" required>
-                    </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Badge Number</label>
+                            <input type="text" name="badge_number" id="badge_number"
+                                class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] outline-none"
+                                placeholder="e.g. 20231457" required>
+                        </div>
+
+                       {{-- Confirm Badge Number --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Confirm Badge Number</label>
+
+                            <div class="relative">
+                                <input type="text" name="badge_number_confirmation" id="badge_number_confirmation"
+                                    class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] outline-none pr-10"
+                                    placeholder="Re-enter Badge Number" required>
+
+                                {{-- Icon container --}}
+                                <span id="badge-icon" class="absolute right-3 top-1/2 -translate-y-1/2 hidden"></span>
+                            </div>
+
+                            <p id="badge-match-message" class="text-sm mt-1"></p>
+                        </div>
 
                     {{-- Division --}}
                     <div>
@@ -52,9 +79,10 @@
 
                     {{-- Submit --}}
                     <div class="text-center pt-4">
-                        <button type="submit"
-                                class="px-8 py-3.5 bg-[#C7B98E] text-black font-semibold rounded-md shadow-md hover:bg-[#B8A67B] transition">
-                            Proceed to Portal
+                        <button type="submit" id="submit-btn"
+                            class="px-8 py-3.5 bg-[#C7B98E] text-black font-semibold rounded-md shadow-md hover:bg-[#B8A67B] transition disabled:opacity-40 disabled:cursor-not-allowed"
+                            disabled>
+                        Proceed to Portal
                         </button>
                     </div>
                 </form>
@@ -66,3 +94,59 @@
         </section>
 
 @endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const badge = document.getElementById('badge_number');
+    const badgeConfirm = document.getElementById('badge_number_confirmation');
+    const message = document.getElementById('badge-match-message');
+    const icon = document.getElementById('badge-icon');
+    const submitBtn = document.getElementById('submit-btn');
+
+    function validateBadge() {
+        const filled = badge.value !== '' && badgeConfirm.value !== '';
+        const match = badge.value === badgeConfirm.value;
+
+        // Reset visual state if confirm field is empty
+        if (!filled) {
+            message.textContent = '';
+            icon.classList.add('hidden');
+            submitBtn.disabled = true;
+            return;
+        }
+
+        if (match) {
+            message.textContent = 'Badge numbers match';
+            message.classList.add('text-green-500');
+            message.classList.remove('text-red-500');
+
+            icon.innerHTML = `
+                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2"
+                     viewBox="0 0 24 24">
+                     <path stroke-linecap="round" stroke-linejoin="round"
+                           d="M5 13l4 4L19 7" />
+                </svg>`;
+            icon.classList.remove('hidden');
+
+            submitBtn.disabled = false; // enable
+        } else {
+            message.textContent = 'Badge numbers do not match';
+            message.classList.add('text-red-500');
+            message.classList.remove('text-green-500');
+
+            icon.innerHTML = `
+                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2"
+                     viewBox="0 0 24 24">
+                     <path stroke-linecap="round" stroke-linejoin="round"
+                           d="M6 18L18 6M6 6l12 12" />
+                </svg>`;
+            icon.classList.remove('hidden');
+
+            submitBtn.disabled = true; // lock
+        }
+    }
+
+    badge.addEventListener('input', validateBadge);
+    badgeConfirm.addEventListener('input', validateBadge);
+});
+</script>

@@ -18,10 +18,17 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+    'name',
+    'first_name',
+    'last_name',
+    'badge_number',
+    'division',
+    'email',
+    'password',
+    'role',
+    'last_login_at',
     ];
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -45,4 +52,15 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    //Concatenated full name accessor
+    public function getNameAttribute()
+{
+    return "{$this->first_name} {$this->last_name}";
+}
+    // Use badge_number for authentication
+    public function getAuthIdentifierName()
+{
+    return 'badge_number';
+}
+
 }
