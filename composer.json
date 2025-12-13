@@ -15,6 +15,7 @@
         "laravel/tinker": "^2.10.1"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.6",
         "fakerphp/faker": "^1.23",
         "laravel/boost": "^1.8",
         "laravel/pail": "^1.2.2",
@@ -30,7 +31,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/visitor.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
