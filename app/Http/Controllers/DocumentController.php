@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Ilovepdf\Ilovepdf;
 use Ilovepdf\Editpdf\TextElement;
+use Illuminate\Support\Facades\DB;
 
 class DocumentController extends Controller
 {
@@ -23,8 +24,51 @@ class DocumentController extends Controller
     {
         $user = User::find(session('visitor_user_id'));
 
+        // Build folders for UI
+        $folders = collect($this->categories)->map(function ($info, $slug) use ($user) {
+            // find leader assigned to this category (if any)
+            $leader = User::where('role', 2)
+                ->where('leader_category', $slug)
+                ->first();
+
+            $allowed = false;
+            $reason  = null;
+
+            // ADMIN
+            if ((int)$user->role === 1) {
+                $allowed = true;
+            }
+
+            // LEADER: only their assigned category
+            elseif ((int)$user->role === 2) {
+                $allowed = ($user->leader_category === $slug);
+                if (! $allowed) $reason = 'Not assigned to your supervision category.';
+            }
+
+            // USER
+            else {
+                // if no leader assigned yet, allow everyone
+                if (! $leader) {
+                    $allowed = true;
+                } else {
+                    // leader exists -> must match leader's division
+                    $allowed = ($leader->division === $user->division);
+                    if (! $allowed) $reason = 'Restricted to another division.';
+                }
+            }
+
+            return [
+                'slug'   => $slug,
+                'label'  => $info['label'],
+                'url'    => route('documents.category', $slug),
+                'allowed'=> $allowed,
+                'reason' => $reason,
+            ];
+        })->values();
+
         return view('documents.index', [
-            'user' => $user,
+            'user'    => $user,
+            'folders' => $folders,
         ]);
     }
 
@@ -32,19 +76,49 @@ class DocumentController extends Controller
 {
     $user = User::find(session('visitor_user_id'));
 
+    // ✅ If no session / user not found
+    if (! $user) {
+        abort(403, 'Please login first.');
+    }
+
+    // ✅ If division not assigned yet
+    if (blank($user->division)) {
+        abort(403, 'Your division is not assigned yet. Please ask the admin to assign your division.');
+    }
+
     if (! isset($this->categories[$category])) {
         abort(404);
     }
 
+    // ✅ Admin always allowed
+    if ((int) $user->role === 1) {
+        return $this->renderCategory($user, $category);
+    }
+
+    // ✅ Leader/User must be allowed by their division
+    $allowed = DB::table('division_category_access')
+        ->where('division', $user->division)
+        ->where('category', $category)
+        ->exists();
+
+    if (! $allowed) {
+        abort(403, 'Your division does not have access to this category.');
+    }
+
+    return $this->renderCategory($user, $category);
+}
+
+/**
+ * ✅ Keeps your old listing logic clean (no changes needed elsewhere)
+ */
+protected function renderCategory(User $user, string $category)
+{
     $info = $this->categories[$category];
 
-    // 1. Get search query
     $search = request('search');
 
-    // 2. Fetch all files
     $files = Storage::disk('public')->files('documents/'.$info['dir']);
 
-    // 3. Transform all files into objects
     $documents = collect($files)->map(function ($path) use ($category) {
         return [
             'name'     => basename($path),
@@ -56,26 +130,23 @@ class DocumentController extends Controller
         ];
     });
 
-    // 4. If searching, filter the collection
     if ($search) {
-        $documents = $documents->filter(function ($doc) use ($search) {
-            return str_contains(strtolower($doc['name']), strtolower($search));
-        });
+        $documents = $documents->filter(fn ($doc) =>
+            str_contains(strtolower($doc['name']), strtolower($search))
+        );
     }
 
-    // 5. Paginate (15 per page or change as needed)
     $perPage = 10;
     $currentPage = request()->get('page', 1);
     $pagedDocs = $documents->forPage($currentPage, $perPage);
 
-    // Create manual paginator
     $paginator = new \Illuminate\Pagination\LengthAwarePaginator(
         $pagedDocs,
         $documents->count(),
         $perPage,
         $currentPage,
         [
-            'path' => request()->url(),
+            'path'  => request()->url(),
             'query' => request()->query(),
         ]
     );
@@ -84,9 +155,35 @@ class DocumentController extends Controller
         'user'          => $user,
         'category'      => $category,
         'categoryLabel' => $info['label'],
-        'documents'     => $paginator, // <-- paginate instead of full list
+        'documents'     => $paginator,
         'search'        => $search,
     ]);
+}
+
+protected function authorizeCategoryAccess(User $user, string $category): void
+{
+    // Admin -> allow
+    if ((int)$user->role === 1) return;
+
+    // Leader -> allow if this category is enabled for their division
+    // (optional: you can allow leaders to override even if not enabled, but usually no)
+    if ((int)$user->role === 2) {
+        $allowed = DB::table('division_category_access')
+            ->where('division', $user->division)
+            ->where('category', $category)
+            ->exists();
+
+        if (! $allowed) abort(403, 'Unauthorized.');
+        return;
+    }
+
+    // User -> allow if category enabled for their division
+    $allowed = DB::table('division_category_access')
+        ->where('division', $user->division)
+        ->where('category', $category)
+        ->exists();
+
+    if (! $allowed) abort(403, 'Unauthorized.');
 }
 
 

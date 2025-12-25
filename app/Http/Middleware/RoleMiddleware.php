@@ -8,14 +8,24 @@ use App\Models\User;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, ...$roles)
-    {
-        $user = User::find(session('visitor_user_id'));
+    public function handle($request, \Closure $next, $roles)
+{
+    $user = \App\Models\User::find(session('visitor_user_id'));
 
-        if (!$user || !in_array($user->role, $roles)) {
-            abort(403, 'Unauthorized access.');
-        }
-
-        return $next($request);
+    if (! $user) {
+        abort(403, 'Unauthorized.');
     }
+
+    $allowed = collect(explode(',', $roles))
+        ->map(fn ($r) => (int)trim($r))
+        ->filter()
+        ->values();
+
+    if (! $allowed->contains((int)$user->role)) {
+        abort(403, 'Unauthorized.');
+    }
+
+    return $next($request);
+}
+
 }

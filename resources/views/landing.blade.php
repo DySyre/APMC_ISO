@@ -59,7 +59,7 @@
                         </div>
 
                     {{-- Division --}}
-                    <div>
+                    {{-- <div>
                         <label class="block text-sm font-medium text-gray-300 mb-1">Division</label>
                         <select name="division"
                                 class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] focus:border-[#C7B98E] outline-none"
@@ -75,7 +75,7 @@
                             <option>Medical Corps</option>
                             <option>Others</option>
                         </select>
-                    </div>
+                    </div> --}}
 
                     {{-- Submit --}}
                     <div class="text-center pt-4">

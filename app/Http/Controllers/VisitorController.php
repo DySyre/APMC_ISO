@@ -16,7 +16,7 @@ class VisitorController extends Controller
             'first_name'   => ['required', 'string', 'max:255'],
             'last_name'    => ['required', 'string', 'max:255'],
             'badge_number' => ['required', 'digits_between:6,12', 'confirmed'],
-            'division'     => ['required', 'string', 'max:255'],
+            // 'division'     => ['required', 'string', 'max:255'],
         ]);
 
         // 🔎 Try to find existing user by badge_number
@@ -29,7 +29,7 @@ class VisitorController extends Controller
                 'last_name'    => $data['last_name'],
                 'name'         => $data['first_name'].' '.$data['last_name'],
                 'badge_number' => $data['badge_number'],
-                'division'     => $data['division'],
+                // 'division'     => $data['division'],
                 'role'         => 3, // 3 = User, 2 = Leader, 1 = Admin
 
                 // placeholder email/password (not used for this badge login)
@@ -44,7 +44,7 @@ class VisitorController extends Controller
                 'first_name'   => $data['first_name'],
                 'last_name'    => $data['last_name'],
                 'name'         => $data['first_name'].' '.$data['last_name'],
-                'division'     => $data['division'],
+                // 'division'     => $data['division'],
                 'last_login_at'=> now(),
             ]);
         }

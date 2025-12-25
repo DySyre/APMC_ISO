@@ -22,10 +22,10 @@
         </div>
 
         <nav class="hidden md:flex items-center gap-6 text-xs font-medium tracking-wide">
-            <a href="{{ url('/') }}" class="hover:text-green-300 transition">HOME</a>
+            {{-- <a href="{{ url('/') }}" class="hover:text-green-300 transition">HOME</a>
             <a href="#about" class="hover:text-green-300 transition">ABOUT</a>
             <a href="#features" class="hover:text-green-300 transition">FEATURES</a>
-            <a href="#contact" class="hover:text-green-300 transition">CONTACT</a>
+            <a href="#contact" class="hover:text-green-300 transition">CONTACT</a> --}}
         </nav>
 
         <div class="flex items-center gap-4">

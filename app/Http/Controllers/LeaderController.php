@@ -3,73 +3,83 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LeaderController extends Controller
 {
     public function index()
     {
         $leader = $this->currentUser();
-        $divisionUsers = User::where('division', $leader->division)->orderBy('last_name')->get();
+        if (! $leader || (int)$leader->role !== 2) abort(403);
 
-        return view('leader.dashboard', [
-            'leader'        => $leader,
-            'divisionUsers' => $divisionUsers,
+        $categories = [
+            'admin' => 'Admin',
+            'personnel-services' => 'Personnel Services',
+            'recruitment-division' => 'Recruitment Division',
+            'career-management' => 'Career Management',
+            'enlisted-personnel-class-advisory' => 'Enlisted Personnel Class Advisory',
+            'officer-career-advisory' => 'Officer Career Advisory',
+        ];
+
+        $allowed = DB::table('division_category_access')
+            ->where('division', $leader->division)
+            ->pluck('category')
+            ->toArray();
+
+        $divisionUsers = User::where('division', $leader->division)
+            ->orderBy('last_name')
+            ->get();
+
+        return view('leader.dashboard', compact('leader', 'divisionUsers', 'categories', 'allowed'));
+    }
+
+    public function updateAccess(Request $request)
+    {
+        $leader = $this->currentUser();
+        if (! $leader || (int)$leader->role !== 2) abort(403);
+
+        $valid = [
+            'admin',
+            'personnel-services',
+            'recruitment-division',
+            'career-management',
+            'enlisted-personnel-class-advisory',
+            'officer-career-advisory',
+        ];
+
+        // ✅ allow empty submit (no checkbox selected)
+        $data = $request->validate([
+            'categories'   => ['sometimes', 'array'],
+            'categories.*' => ['in:' . implode(',', $valid)],
         ]);
+
+        $selected = $data['categories'] ?? [];
+
+        DB::transaction(function () use ($leader, $selected) {
+            DB::table('division_category_access')
+                ->where('division', $leader->division)
+                ->delete();
+
+            foreach ($selected as $cat) {
+                DB::table('division_category_access')->insert([
+                    'division'   => $leader->division,
+                    'category'   => $cat,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        });
+
+        return back()->with('status', 'Access updated for your division.');
     }
 
-     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // ✅ ADD THIS (this is what you were missing)
+    protected function currentUser(): ?User
     {
-        //
-    }
+        $id = session('visitor_user_id');
+        if (! $id) return null;
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(cr $cr)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(cr $cr)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, cr $cr)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(cr $cr)
-    {
-        //
-    }
-
-    //  Protected function currentUser() --- IGNORE --- LARAVEL IS AWESOME ---
-
-    protected function currentUser()
-    {
-        // if you later use auth(), replace this
-        return User::find(session('visitor_user_id'));
+        return User::find($id);
     }
 }
