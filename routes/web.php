@@ -59,6 +59,16 @@ Route::get('/leader', [LeaderController::class, 'index'])
     ->middleware(RoleMiddleware::class . ':2')
     ->name('leader.dashboard');
 
+Route::post('/admin/users/{user}/leader-category', [AdminController::class, 'updateLeaderCategory'])
+    ->name('admin.users.updateLeaderCategory');
+
+Route::post('/leader/access', [LeaderController::class, 'updateAccess'])
+    ->middleware(RoleMiddleware::class . ':2')
+    ->name('leader.access.update');
+
+Route::post('/admin/users/{user}/division', [AdminController::class, 'updateDivision'])
+    ->name('admin.users.updateDivision');
+
 
 // ============================
 // USER (role = 3)

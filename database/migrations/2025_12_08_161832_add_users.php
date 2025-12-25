@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('badge_number')->unique()->after('last_name');
 
             // Division assignment
-            $table->string('division')->after('badge_number');
+            $table->string('division')->nullable()->after('badge_number');
 
             // Role: 1=Admin, 2=Leader, 3=User
             $table->tinyInteger('role')->after('division');

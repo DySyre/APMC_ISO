@@ -33,5 +33,40 @@
             </tbody>
         </table>
     </div>
+
+    @if(session('status'))
+    <div class="mb-4 rounded border border-emerald-600/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">
+        {{ session('status') }}
+    </div>
+@endif
+
+<div class="bg-[#0D0F0A]/90 border border-slate-700 rounded-lg p-4 mb-6">
+    <h2 class="text-lg font-semibold text-slate-200 mb-2">Division Category Access</h2>
+    <p class="text-xs text-slate-400 mb-4">
+        Division: <span class="text-slate-200 font-medium">{{ $leader->division }}</span>
+    </p>
+
+    <form method="POST" action="{{ route('leader.access.update') }}">
+        @csrf
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            @foreach($categories as $slug => $label)
+                <label class="flex items-center gap-2 bg-slate-900/40 border border-slate-800 rounded-md px-3 py-2 hover:border-[#C7B98E]">
+                    <input type="checkbox"
+                           name="categories[]"
+                           value="{{ $slug }}"
+                           @checked(in_array($slug, $allowed))
+                           class="rounded border-slate-600 bg-slate-950 text-[#C7B98E] focus:ring-[#C7B98E]" />
+                    <span class="text-sm text-slate-200">{{ $label }}</span>
+                </label>
+            @endforeach
+        </div>
+
+        <button class="mt-4 px-4 py-2 rounded bg-[#C7B98E] text-black font-semibold hover:bg-[#B8A67B]">
+            Save Access
+        </button>
+    </form>
+</div>
+
 </main>
 @endsection
