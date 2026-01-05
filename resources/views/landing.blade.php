@@ -42,15 +42,20 @@
                                 placeholder="e.g. 20231457" required>
                         </div>
 
-                       {{-- Confirm Badge Number --}}
+                      {{-- Password --}}
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1">Confirm Badge Number</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">
+                                Password
+                            </label>
 
-                            <div class="relative">
-                                <input type="text" name="badge_number_confirmation" id="badge_number_confirmation"
-                                    class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] outline-none pr-10"
-                                    placeholder="Re-enter Badge Number" required>
-
+                            <input type="password"
+                                name="password"
+                                id="password"
+                                class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md
+                                        focus:ring-2 focus:ring-[#C7B98E] outline-none"
+                                placeholder="Enter your secure password"
+                                required>
+                        </div>
                                 {{-- Icon container --}}
                                 <span id="badge-icon" class="absolute right-3 top-1/2 -translate-y-1/2 hidden"></span>
                             </div>
@@ -98,55 +103,39 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const badge = document.getElementById('badge_number');
-    const badgeConfirm = document.getElementById('badge_number_confirmation');
+    const password = document.getElementById('password');
     const message = document.getElementById('badge-match-message');
     const icon = document.getElementById('badge-icon');
     const submitBtn = document.getElementById('submit-btn');
 
-    function validateBadge() {
-        const filled = badge.value !== '' && badgeConfirm.value !== '';
-        const match = badge.value === badgeConfirm.value;
+    function validateForm() {
+        const badgeFilled = badge.value.trim() !== '';
+        const passwordFilled = password.value.trim() !== '';
 
-        // Reset visual state if confirm field is empty
-        if (!filled) {
+        if (!badgeFilled || !passwordFilled) {
+            submitBtn.disabled = true;
             message.textContent = '';
             icon.classList.add('hidden');
-            submitBtn.disabled = true;
             return;
         }
 
-        if (match) {
-            message.textContent = 'Badge numbers match';
-            message.classList.add('text-green-500');
-            message.classList.remove('text-red-500');
+        // Visual confirmation (optional but clean UX)
+        message.textContent = 'Credentials ready';
+        message.classList.remove('text-red-500');
+        message.classList.add('text-green-500');
 
-            icon.innerHTML = `
-                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2"
-                     viewBox="0 0 24 24">
-                     <path stroke-linecap="round" stroke-linejoin="round"
-                           d="M5 13l4 4L19 7" />
-                </svg>`;
-            icon.classList.remove('hidden');
+        icon.innerHTML = `
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24">
+                 <path stroke-linecap="round" stroke-linejoin="round"
+                       d="M5 13l4 4L19 7" />
+            </svg>`;
+        icon.classList.remove('hidden');
 
-            submitBtn.disabled = false; // enable
-        } else {
-            message.textContent = 'Badge numbers do not match';
-            message.classList.add('text-red-500');
-            message.classList.remove('text-green-500');
-
-            icon.innerHTML = `
-                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2"
-                     viewBox="0 0 24 24">
-                     <path stroke-linecap="round" stroke-linejoin="round"
-                           d="M6 18L18 6M6 6l12 12" />
-                </svg>`;
-            icon.classList.remove('hidden');
-
-            submitBtn.disabled = true; // lock
-        }
+        submitBtn.disabled = false;
     }
 
-    badge.addEventListener('input', validateBadge);
-    badgeConfirm.addEventListener('input', validateBadge);
+    badge.addEventListener('input', validateForm);
+    password.addEventListener('input', validateForm);
 });
 </script>

@@ -1,4 +1,9 @@
 import '../css/app.css';
+import './bootstrap';
+import Alpine from 'alpinejs';
+
+window.Alpine = Alpine;
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const html = document.documentElement;

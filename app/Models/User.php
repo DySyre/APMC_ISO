@@ -17,6 +17,11 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+
+    const ROLE_ADMIN  = 1;
+    const ROLE_LEADER = 2;
+    const ROLE_USER   = 3;
+
     protected $fillable = [
     'name',
     'first_name',
@@ -61,6 +66,21 @@ class User extends Authenticatable
     public function getAuthIdentifierName()
 {
     return 'badge_number';
+}
+
+public function isAdmin(): bool
+{
+    return $this->role === self::ROLE_ADMIN;
+}
+
+public function isLeader(): bool
+{
+    return $this->role === self::ROLE_LEADER;
+}
+
+public function isUser(): bool
+{
+    return $this->role === self::ROLE_USER;
 }
 
 }
