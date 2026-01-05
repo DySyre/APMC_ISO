@@ -25,6 +25,8 @@ return new class extends Migration
             $table->tinyInteger('role')->after('division');
             // Last login timestamp
             $table->timestamp('last_login_at')->nullable()->after('updated_at');
+            $table->string('provider')->nullable();      // google, microsoft
+            $table->string('provider_id')->nullable();   // oauth user id
         });
     }
 
