@@ -2,67 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use App\Models\User;
 
 class VisitorController extends Controller
 {
-    public function storeVisitor(Request $request)
+    public function enter(Request $request)
     {
-        // 🔐 Validate incoming form
-        $data = $request->validate([
-            'first_name'   => ['required', 'string', 'max:255'],
-            'last_name'    => ['required', 'string', 'max:255'],
-            'badge_number' => ['required', 'digits_between:6,12', 'confirmed'],
-            // 'division'     => ['required', 'string', 'max:255'],
+        $credentials = $request->validate([
+            'badge_number' => ['required', 'string'],
+            'password'     => ['required', 'string'],
         ]);
 
-        // 🔎 Try to find existing user by badge_number
-        $user = User::where('badge_number', $data['badge_number'])->first();
+        $user = User::where('badge_number', $credentials['badge_number'])->first();
 
-        if (! $user) {
-            // 🆕 First time visitor → create new user (default = User role 3)
-            $user = User::create([
-                'first_name'   => $data['first_name'],
-                'last_name'    => $data['last_name'],
-                'name'         => $data['first_name'].' '.$data['last_name'],
-                'badge_number' => $data['badge_number'],
-                // 'division'     => $data['division'],
-                'role'         => 3, // 3 = User, 2 = Leader, 1 = Admin
-
-                // placeholder email/password (not used for this badge login)
-                'email'        => $data['badge_number'].'@placeholder.local',
-                'password'     => Hash::make(Str::random(16)),
-
-                'last_login_at'=> now(),
-            ]);
-        } else {
-            // 🔁 Existing user → update basic info and last login
-            $user->update([
-                'first_name'   => $data['first_name'],
-                'last_name'    => $data['last_name'],
-                'name'         => $data['first_name'].' '.$data['last_name'],
-                // 'division'     => $data['division'],
-                'last_login_at'=> now(),
-            ]);
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            return back()
+                ->withErrors(['badge_number' => 'Invalid badge number or password'])
+                ->withInput();
         }
 
-        // 💾 Save "who is logged in" in session
-        session(['visitor_user_id' => $user->id]);
+        Auth::login($user);
+        $request->session()->regenerate();
 
-        // 🎯 ROLE-BASED LANDING
-        switch ($user->role) {
-            case 1: // Admin
-                return redirect()->route('admin.dashboard');
-
-            case 2: // Leader
-                return redirect()->route('leader.dashboard');
-
-            case 3: // User (default)
-            default:
-                return redirect()->route('documents.index');
+        // 🚨 SAFETY: division not assigned yet
+        if ($user->role !== User::ROLE_ADMIN && empty($user->division)) {
+            Auth::logout();
+            return redirect()
+                ->route('landing')
+                ->withErrors(['badge_number' => 'Your account is not yet assigned to a division.']);
         }
+
+        // 🎯 ROLE-BASED REDIRECT
+        return match ((int) $user->role) {
+            User::ROLE_ADMIN  => redirect()->route('admin.dashboard'),
+            User::ROLE_LEADER => redirect()->route('leader.dashboard'),
+            User::ROLE_USER   => redirect()->route('documents.index'),
+            default           => abort(403),
+        };
     }
 }

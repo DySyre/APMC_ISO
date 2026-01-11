@@ -20,6 +20,11 @@ Route::get('/', function () {
 })->name('landing');
 
 
+Route::post('/visitor/enter', [VisitorController::class, 'enter'])
+    ->name('visitor.enter');
+
+
+
 /*
 |--------------------------------------------------------------------------
 | DASHBOARD (generic, optional)
