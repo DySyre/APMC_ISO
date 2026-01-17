@@ -35,12 +35,17 @@
                         </div>
 
                     {{-- Badge Number --}}
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1">Badge Number</label>
-                            <input type="text" name="badge_number" id="badge_number"
-                                class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] outline-none"
-                                placeholder="e.g. 20231457" required>
-                        </div>
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Badge Number</label>
+                        <input type="text" name="badge_number" id="badge_number"
+                            class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] outline-none"
+                            placeholder="e.g. 20231457" required>
+
+                        {{-- Icon --}}
+                        <span id="badge-icon"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 hidden"></span>
+                    </div>
+
 
                       {{-- Password --}}
                         <div>
@@ -56,6 +61,8 @@
                                 placeholder="Enter your secure password"
                                 required>
                         </div>
+                        <p id="badge-match-message" class="text-sm mt-1"></p>
+
                                 {{-- Icon container --}}
                                 <span id="badge-icon" class="absolute right-3 top-1/2 -translate-y-1/2 hidden"></span>
                             </div>
@@ -63,34 +70,23 @@
                             <p id="badge-match-message" class="text-sm mt-1"></p>
                         </div>
 
-                    {{-- Division --}}
-                    {{-- <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Division</label>
-                        <select name="division"
-                                class="w-full bg-[#1A1D17] border border-[#3E4636] text-gray-100 px-4 py-2.5 rounded-md focus:ring-2 focus:ring-[#C7B98E] focus:border-[#C7B98E] outline-none"
-                                required>
-                            <option value="" disabled selected>-- Select Division --</option>
-                            <option>Infantry</option>
-                            <option>Artillery</option>
-                            <option>Armor</option>
-                            <option>Engineering</option>
-                            <option>Intelligence</option>
-                            <option>Communications</option>
-                            <option>Logistics</option>
-                            <option>Medical Corps</option>
-                            <option>Others</option>
-                        </select>
-                    </div> --}}
-
                     {{-- Submit --}}
                     <div class="text-center pt-4">
                         <button type="submit" id="submit-btn"
                             class="px-8 py-3.5 bg-[#C7B98E] text-black font-semibold rounded-md shadow-md hover:bg-[#B8A67B] transition disabled:opacity-40 disabled:cursor-not-allowed"
                             disabled>
-                        Proceed to Portal
+                        Login
                         </button>
                     </div>
                 </form>
+
+                <p class="mt-4 text-center text-sm text-gray-400">
+                    No account yet?
+                    <a href="{{ route('register') }}"
+                    class="text-[#C7B98E] hover:underline font-medium">
+                        Register here
+                    </a>
+                </p>
 
                 <p class="mt-6 text-center text-[12px] text-gray-500 tracking-wide">
                     Unauthorized personnel are subject to monitoring and access restrictions
@@ -99,43 +95,3 @@
         </section>
 
 @endsection
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const badge = document.getElementById('badge_number');
-    const password = document.getElementById('password');
-    const message = document.getElementById('badge-match-message');
-    const icon = document.getElementById('badge-icon');
-    const submitBtn = document.getElementById('submit-btn');
-
-    function validateForm() {
-        const badgeFilled = badge.value.trim() !== '';
-        const passwordFilled = password.value.trim() !== '';
-
-        if (!badgeFilled || !passwordFilled) {
-            submitBtn.disabled = true;
-            message.textContent = '';
-            icon.classList.add('hidden');
-            return;
-        }
-
-        // Visual confirmation (optional but clean UX)
-        message.textContent = 'Credentials ready';
-        message.classList.remove('text-red-500');
-        message.classList.add('text-green-500');
-
-        icon.innerHTML = `
-            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2"
-                 viewBox="0 0 24 24">
-                 <path stroke-linecap="round" stroke-linejoin="round"
-                       d="M5 13l4 4L19 7" />
-            </svg>`;
-        icon.classList.remove('hidden');
-
-        submitBtn.disabled = false;
-    }
-
-    badge.addEventListener('input', validateForm);
-    password.addEventListener('input', validateForm);
-});
-</script>
