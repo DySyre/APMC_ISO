@@ -1,47 +1,126 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+@extends('layouts.app')
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+@section('content')
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+<!-- Session Status -->
+<x-auth-session-status class="mb-4" :status="session('status')" />
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+<main class="flex-1 flex items-center justify-center px-6 py-10">
+        {{-- Visitor Identity Form --}}
+        <section class="relative z-10 py-14 bg-[#0D0F0A]/90 border-t border-[#2F3426]">
+            <div class="max-w-xl mx-auto px-6">
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+                <h2 class="text-center text-2xl font-semibold text-[#ffffff] mb-8 tracking-wide">
+                    Personnel Access Verification
+                </h2>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+            <form method="POST" action="{{ route('login') }}" class="space-y-6">
+                @csrf
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+                {{-- EMAIL --}}
+                <div>
+                    <x-input-label for="email" :value="__('Email')" />
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
+                    <x-text-input id="email"
+                        type="email" name="email" :value="old('email')" required autofocus
+                        autocomplete="username" />
+
+                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                </div>
+
+                {{-- PASSWORD --}}
+                <div>
+                    <x-input-label for="password" :value="__('Password')" />
+
+                    <x-text-input id="password"
+                        type="password" name="password" required
+                        autocomplete="current-password" />
+
+                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                </div>
+
+                {{-- Remember Me --}}
+                <div class="flex items-center justify-between">
+                    <label for="remember_me" class="inline-flex items-center text-gray-400 text-sm">
+                        <input id="remember_me"
+                            type="checkbox"
+                            class="rounded border-gray-500 bg-[#1A1D17] text-[#C7B98E]
+                                   focus:ring-[#C7B98E]" name="remember">
+                        <span class="ml-2">Remember me</span>
+                    </label>
+
+                    @if (Route::has('password.request'))
+                        <a class="text-sm text-[#C7B98E] hover:underline"
+                            href="{{ route('password.request') }}">
+                            {{ __('Forgot your password?') }}
+                        </a>
+                    @endif
+                </div>
+
+                {{-- Submit --}}
+                <div class="text-center pt-4">
+                    <x-primary-button
+                        class="px-8 py-3.5 bg-[#C7B98E] text-black font-semibold rounded-md shadow-md
+                               hover:bg-[#B8A67B] transition">
+                        {{ __('Log in') }}
+                    </x-primary-button>
+                </div>
+            </form>
+
+            {{-- Register --}}
+            <p class="mt-4 text-center text-sm text-gray-400">
+                No account yet?
+                <a href="{{ route('register') }}" class="text-[#C7B98E] hover:underline font-medium">
+                    Register here
                 </a>
-            @endif
+            </p>
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
+            <p class="mt-6 text-center text-[12px] text-gray-500 tracking-wide">
+                Unauthorized personnel are subject to monitoring and access restrictions
+            </p>
+
         </div>
-    </form>
-</x-guest-layout>
+    </section>
+</main>
+
+@endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const badge = document.getElementById('badge_number');
+    const password = document.getElementById('password');
+    const message = document.getElementById('badge-match-message');
+    const icon = document.getElementById('badge-icon');
+    const submitBtn = document.getElementById('submit-btn');
+
+    function validateForm() {
+        const badgeFilled = badge.value.trim() !== '';
+        const passwordFilled = password.value.trim() !== '';
+
+        if (!badgeFilled || !passwordFilled) {
+            submitBtn.disabled = true;
+            message.textContent = '';
+            icon.classList.add('hidden');
+            return;
+        }
+
+        // Visual confirmation (optional but clean UX)
+        message.textContent = 'Credentials ready';
+        message.classList.remove('text-red-500');
+        message.classList.add('text-green-500');
+
+        icon.innerHTML = `
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24">
+                 <path stroke-linecap="round" stroke-linejoin="round"
+                       d="M5 13l4 4L19 7" />
+            </svg>`;
+        icon.classList.remove('hidden');
+
+        submitBtn.disabled = false;
+    }
+
+    badge.addEventListener('input', validateForm);
+    password.addEventListener('input', validateForm);
+});
+</script> 
