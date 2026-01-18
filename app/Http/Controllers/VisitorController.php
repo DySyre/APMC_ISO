@@ -27,7 +27,6 @@ class VisitorController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        // 🚨 SAFETY: division not assigned yet
         if ($user->role !== User::ROLE_ADMIN && empty($user->division)) {
             Auth::logout();
             return redirect()
@@ -35,7 +34,6 @@ class VisitorController extends Controller
                 ->withErrors(['badge_number' => 'Your account is not yet assigned to a division.']);
         }
 
-        // 🎯 ROLE-BASED REDIRECT
         return match ((int) $user->role) {
             User::ROLE_ADMIN  => redirect()->route('admin.dashboard'),
             User::ROLE_LEADER => redirect()->route('leader.dashboard'),

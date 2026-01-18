@@ -14,28 +14,35 @@
                     Personnel Access Verification
                 </h2>
 
-            <form method="POST" action="{{ route('login') }}" class="space-y-6">
+             <form method="POST" action="{{ route('visitor.enter') }}" class="space-y-6">
                 @csrf
 
-                {{-- EMAIL --}}
-                <div>
-                    <x-input-label for="email" :value="__('Email')" />
-
-                    <x-text-input id="email"
-                        type="email" name="email" :value="old('email')" required autofocus
-                        autocomplete="username" />
-
-                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                {{-- Badge Number --}}
+                <div class="relative">
+                    <x-input-label for="badge_number" :value="__('Badge Number')" />
+                    <x-text-input
+                        id="badge_number"
+                        class="block mt-1 w-full bg-[#1A1D17] border border-[#3E4636]
+                               text-gray-100 px-4 py-2.5 rounded-md focus:ring-2
+                               focus:ring-[#C7B98E] outline-none"
+                        type="text"
+                        name="badge_number"
+                        :value="old('badge_number')"
+                        required />
+                    <x-input-error :messages="$errors->get('badge_number')" class="mt-2" />
                 </div>
 
-                {{-- PASSWORD --}}
+                {{-- Password --}}
                 <div>
                     <x-input-label for="password" :value="__('Password')" />
-
-                    <x-text-input id="password"
-                        type="password" name="password" required
-                        autocomplete="current-password" />
-
+                    <x-text-input
+                        id="password"
+                        class="block mt-1 w-full bg-[#1A1D17] border border-[#3E4636]
+                               text-gray-100 px-4 py-2.5 rounded-md focus:ring-2
+                               focus:ring-[#C7B98E] outline-none"
+                        type="password"
+                        name="password"
+                        required />
                     <x-input-error :messages="$errors->get('password')" class="mt-2" />
                 </div>
 
@@ -61,7 +68,7 @@
                 <div class="text-center pt-4">
                     <x-primary-button
                         class="px-8 py-3.5 bg-[#C7B98E] text-black font-semibold rounded-md shadow-md
-                               hover:bg-[#B8A67B] transition">
+                               hover:bg-[#B8A67B] transition cursor-pointer">
                         {{ __('Log in') }}
                     </x-primary-button>
                 </div>
