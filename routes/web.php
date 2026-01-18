@@ -15,6 +15,10 @@ use App\Models\User;
 |--------------------------------------------------------------------------
 */
 
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
 Route::get('/', function () {
     return view('landing');
 })->name('landing');

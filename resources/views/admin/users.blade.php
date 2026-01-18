@@ -64,7 +64,7 @@
                         <td class="px-4 py-2 text-xs text-slate-400">
                             {{ $user->last_login_at ?? '—' }}
                         </td>
-
+                        
                         <td class="px-4 py-2">
                             <form action="{{ route('admin.users.updateRole', $user) }}"
                                   method="POST"
