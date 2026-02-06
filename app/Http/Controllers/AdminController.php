@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -22,7 +23,16 @@ class AdminController extends Controller
         $users   = User::orderBy('last_name')->get();
         $leaders = User::where('role', 2)->orderBy('last_name')->get();
 
-        return view('admin.users', compact('users', 'leaders'));
+        $divisionOptions = $this->divisionOptions();
+        $categories = $this->categories();
+
+        $divisionAccess = DB::table('division_category_access')
+            ->get()
+            ->groupBy('division')
+            ->map(fn ($rows) => $rows->pluck('category')->values()->all())
+            ->toArray();
+
+        return view('admin.users', compact('users', 'leaders', 'divisionOptions', 'categories', 'divisionAccess'));
 
     }
 
@@ -84,5 +94,61 @@ class AdminController extends Controller
 
             return back()->with('status', 'Division updated.');
         }
+
+    public function updateDivisionAccess(Request $request)
+    {
+        $divisionOptions = $this->divisionOptions();
+        $validCategories = array_keys($this->categories());
+
+        $data = $request->validate([
+            'division'     => ['required', 'string', 'in:' . implode(',', $divisionOptions)],
+            'categories'   => ['sometimes', 'array'],
+            'categories.*' => ['in:' . implode(',', $validCategories)],
+        ]);
+
+        $division = $data['division'];
+        $selected = $data['categories'] ?? [];
+
+        DB::transaction(function () use ($division, $selected) {
+            DB::table('division_category_access')
+                ->where('division', $division)
+                ->delete();
+
+            foreach ($selected as $cat) {
+                DB::table('division_category_access')->insert([
+                    'division'   => $division,
+                    'category'   => $cat,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        });
+
+        return back()->with('status', "Access updated for {$division}.");
+    }
+
+    private function divisionOptions(): array
+    {
+        return [
+            'Admin Division',
+            'Personnel Services',
+            'Recruitment Division',
+            'Career Management',
+            'Enlisted Personnel Class Advisory',
+            'Office Career Advisory',
+        ];
+    }
+
+    private function categories(): array
+    {
+        return [
+            'admin' => 'Admin',
+            'personnel-services' => 'Personnel Services',
+            'recruitment-division' => 'Recruitment Division',
+            'career-management' => 'Career Management',
+            'enlisted-personnel-class-advisory' => 'Enlisted Personnel Class Advisory',
+            'officer-career-advisory' => 'Officer Career Advisory',
+        ];
+    }
 
 }

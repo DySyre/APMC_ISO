@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Ilovepdf\Ilovepdf;
 use Ilovepdf\Editpdf\TextElement;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 
 class DocumentController extends Controller
 {
@@ -135,12 +136,21 @@ class DocumentController extends Controller
         $files = Storage::disk('public')->files('documents/' . $info['dir']);
 
         $documents = collect($files)->map(function ($path) use ($category) {
+            $filename = basename($path);
+
+            $openUrl = URL::temporarySignedRoute(
+                'documents.open',
+                now()->addMinutes(5),
+                ['category' => $category, 'filename' => $filename]
+            );
+
             return [
-                'name'     => basename($path),
+                'name'     => $filename,
                 'url'      => Storage::url($path),
+                'open_url' => $openUrl,
                 'edit_url' => route('documents.edit', [
                     'category' => $category,
-                    'filename' => basename($path),
+                    'filename' => $filename,
                 ]),
             ];
         });
@@ -174,6 +184,27 @@ class DocumentController extends Controller
             'documents'     => $paginator,
             'search'        => $search,
         ]);
+    }
+
+    /**
+     * -----------------------------------------
+     * OPEN FOR LOCAL HELPER APP (SIGNED URL)
+     * -----------------------------------------
+     */
+    public function open(string $category, string $filename)
+    {
+        if (! isset($this->categories[$category])) {
+            abort(404);
+        }
+
+        $info = $this->categories[$category];
+        $relative = 'documents/' . $info['dir'] . '/' . $filename;
+
+        if (! Storage::disk('public')->exists($relative)) {
+            abort(404, 'PDF not found');
+        }
+
+        return Storage::disk('public')->download($relative, $filename);
     }
 
     /**

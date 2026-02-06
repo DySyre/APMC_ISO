@@ -77,6 +77,9 @@ Route::middleware(['auth', RoleMiddleware::class . ':1'])->group(function () {
     Route::post('/admin/users/{user}/leader-category', [AdminController::class, 'updateLeaderCategory'])
         ->name('admin.users.updateLeaderCategory');
 
+    Route::post('/admin/division-access', [AdminController::class, 'updateDivisionAccess'])
+        ->name('admin.division.access.update');
+
     // Admin document management
     Route::get('/admin/documents/category/{category}', [AdminDocumentController::class, 'category'])
         ->name('admin.documents.category');
@@ -136,6 +139,11 @@ Route::middleware(['auth', RoleMiddleware::class . ':2,3'])->group(function () {
     Route::post('/documents/{category}/{filename}/edit', [DocumentController::class, 'edit'])
         ->name('documents.edit');
 });
+
+Route::get('/documents/open/{category}/{filename}', [DocumentController::class, 'open'])
+    ->where('filename', '.*')
+    ->middleware('signed')
+    ->name('documents.open');
 
 
 /*

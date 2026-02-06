@@ -25,7 +25,8 @@
                         <td class="px-4 py-2">{{ $user->first_name }} {{ $user->last_name }}</td>
                         <td class="px-4 py-2">
                             @if($user->role === 1) Admin
-                            @elseif($user->role === 2) Leader
+                            @elseif($user->role === 2) Division Chief
+                            @elseif($user->role === 3) Process Owner
                             @else User @endif
                         </td>
                     </tr>
@@ -40,7 +41,7 @@
     </div>
 @endif
 
-<div class="bg-[#0D0F0A]/90 border border-slate-700 rounded-lg p-4 mb-6">
+<div class="bg-[#0D0F0A]/90 border border-slate-700 rounded-lg p-4 my-6">
     <h2 class="text-lg font-semibold text-slate-200 mb-2">Division Category Access</h2>
     <p class="text-xs text-slate-400 mb-4">
         Division: <span class="text-slate-200 font-medium">{{ $leader->division }}</span>

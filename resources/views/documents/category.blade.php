@@ -10,7 +10,7 @@
         {{ $user->first_name }} {{ $user->last_name }} • Division: {{ $user->division }}
     </p>
 
-    <a href="{{ route('documents.index') }}" class="text-xs text-[#C7B98E] hover:underline">
+    <a href="{{ route('documents.index') }}" class="text-xs text-[#C7B98E] hover:underline cursor-pointer">
         ← Back to Categories
     </a>
 
@@ -22,7 +22,7 @@
                 placeholder="Search documents..."
                 class="w-full px-3 py-2 text-sm rounded bg-[#11140e] border border-slate-700 text-slate-200 focus:border-[#C7B98E] focus:ring-0">
             
-            <button class="px-4 py-2 text-sm rounded bg-[#C7B98E] text-black font-semibold hover:bg-[#B8A67B]">
+            <button class="px-4 py-2 text-sm rounded bg-[#C7B98E] text-black font-semibold hover:bg-[#B8A67B] cursor-pointer">
                 Search
             </button>
         </div>
@@ -49,13 +49,6 @@
 
                         <div class="flex items-center gap-2">
 
-                            {{-- VIEW --}}
-                            <a href="{{ $doc['url'] }}"
-                            class="text-xs px-3 py-1 rounded bg-[#C7B98E] text-black font-semibold hover:bg-[#B8A67B]"
-                            target="_blank">
-                                View
-                            </a>
-
                             {{-- EDIT PDF --}}
                             {{-- <form method="POST" action="{{ $doc['edit_url'] }}">
                                 @csrf
@@ -66,11 +59,27 @@
                                 </button>
                             </form> --}}
 
+                            {{-- Open in Local App (requires helper app) --}}
+                            <a href="apmc://open?url={{ urlencode($doc['open_url']) }}"
+                               class="text-xs px-3 py-1 rounded bg-amber-500 text-black font-semibold hover:bg-amber-400"
+                               title="Opens via the APMC helper app, then your local PDF editor.">
+                                Open in App
+                            </a>
+
+                            {{-- VIEW --}}
+                            <a href="{{ $doc['url'] }}"
+                               target="_blank"
+                               class="text-xs px-3 py-1 rounded bg-[#C7B98E] text-black font-semibold hover:bg-[#B8A67B]"
+                               title="View PDF">
+                                <x-eye-icon />
+                            </a>
+
                             {{-- Download PDF --}}
-                            <a href="{{ $doc['url'] }}" download="{{ $doc['name'] }}"
-                                   class="text-xs px-3 py-1 rounded bg-amber-500 text-black font-semibold hover:bg-amber-400">
-                                    Download PDF
-                                </button>
+                            <a href="{{ $doc['url'] }}"
+                               download="{{ $doc['name'] }}"
+                               class="text-xs px-3 py-1 rounded bg-amber-500/80 text-black font-semibold hover:bg-amber-400"
+                               title="Download PDF">
+                                <x-download-icon />
                             </a>
 
                         </div>

@@ -1,0 +1,15 @@
+C:\Users\Alexx\APMC_ISO\native\windows-helper\bin\Release\net8.0-windows\APMC.Helper.exe
+C:\Users\Alexx\APMC_ISO\native\windows-helper\bin\Release\net8.0-windows\APMC.Helper.deps.json
+C:\Users\Alexx\APMC_ISO\native\windows-helper\bin\Release\net8.0-windows\APMC.Helper.runtimeconfig.json
+C:\Users\Alexx\APMC_ISO\native\windows-helper\bin\Release\net8.0-windows\APMC.Helper.dll
+C:\Users\Alexx\APMC_ISO\native\windows-helper\bin\Release\net8.0-windows\APMC.Helper.pdb
+C:\Users\Alexx\APMC_ISO\native\windows-helper\obj\Release\net8.0-windows\APMC.Helper.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Alexx\APMC_ISO\native\windows-helper\obj\Release\net8.0-windows\APMC.Helper.AssemblyInfoInputs.cache
+C:\Users\Alexx\APMC_ISO\native\windows-helper\obj\Release\net8.0-windows\APMC.Helper.AssemblyInfo.cs
+C:\Users\Alexx\APMC_ISO\native\windows-helper\obj\Release\net8.0-windows\APMC.Helper.csproj.CoreCompileInputs.cache
+C:\Users\Alexx\APMC_ISO\native\windows-helper\obj\Release\net8.0-windows\APMC.Helper.sourcelink.json
+C:\Users\Alexx\APMC_ISO\native\windows-helper\obj\Release\net8.0-windows\APMC.Helper.dll
+C:\Users\Alexx\APMC_ISO\native\windows-helper\obj\Release\net8.0-windows\refint\APMC.Helper.dll
+C:\Users\Alexx\APMC_ISO\native\windows-helper\obj\Release\net8.0-windows\APMC.Helper.pdb
+C:\Users\Alexx\APMC_ISO\native\windows-helper\obj\Release\net8.0-windows\APMC.Helper.genruntimeconfig.cache
+C:\Users\Alexx\APMC_ISO\native\windows-helper\obj\Release\net8.0-windows\ref\APMC.Helper.dll
