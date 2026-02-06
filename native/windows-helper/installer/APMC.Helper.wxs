@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package
+    Name="APMC Helper"
+    Manufacturer="APMC"
+    Version="1.0.0"
+    UpgradeCode="{D8F5A7A3-4F97-4C9D-9F07-1E6C5B2E8C10}">
+
+    <MediaTemplate />
+
+    <StandardDirectory Id="ProgramFilesFolder">
+      <Directory Id="APMCHelperDir" Name="APMC Helper">
+        <Component Id="APMCHelperExe" Guid="{D2DAFB8C-EE59-4DE2-B760-6B7A34315A8F}">
+          <File Id="APMCHelperExeFile"
+                Source="..\bin\Release\net8.0-windows\APMC.Helper.exe"
+                KeyPath="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <ComponentGroup Id="ProductComponents">
+      <ComponentRef Id="APMCHelperExe" />
+      <ComponentRef Id="APMCProtocol" />
+    </ComponentGroup>
+
+    <Component Id="APMCProtocol" Guid="{8F7F61E5-7BFA-4D24-8A8C-6A5A8B3F0E3C}">
+      <RegistryKey Root="HKCR" Key="apmc">
+        <RegistryValue Type="string" Value="URL:APMC Protocol" />
+        <RegistryValue Name="URL Protocol" Type="string" Value="" />
+        <RegistryKey Key="DefaultIcon">
+          <RegistryValue Type="string" Value="[APMCHelperDir]APMC.Helper.exe,1" />
+        </RegistryKey>
+        <RegistryKey Key="shell\open\command">
+          <RegistryValue Type="string" Value="&quot;[APMCHelperDir]APMC.Helper.exe&quot; &quot;%1&quot;" />
+        </RegistryKey>
+      </RegistryKey>
+    </Component>
+
+    <Feature Id="MainFeature" Title="APMC Helper" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+  </Package>
+</Wix>

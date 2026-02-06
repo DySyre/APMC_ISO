@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "native", "native", "{2F2BA0B1-8447-348E-8DA4-622F0257D38B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "windows-helper", "windows-helper", "{104BC390-7F96-97C6-24D8-B1EDC15FD53E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APMC.Helper", "native\windows-helper\APMC.Helper.csproj", "{145C049E-4041-9A62-7E81-9BE92B6DBFEB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{145C049E-4041-9A62-7E81-9BE92B6DBFEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{145C049E-4041-9A62-7E81-9BE92B6DBFEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{145C049E-4041-9A62-7E81-9BE92B6DBFEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{145C049E-4041-9A62-7E81-9BE92B6DBFEB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{104BC390-7F96-97C6-24D8-B1EDC15FD53E} = {2F2BA0B1-8447-348E-8DA4-622F0257D38B}
+		{145C049E-4041-9A62-7E81-9BE92B6DBFEB} = {104BC390-7F96-97C6-24D8-B1EDC15FD53E}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {267E5FEA-76E5-4A91-9707-D28CDF177A8A}
+	EndGlobalSection
+EndGlobal

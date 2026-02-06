@@ -24,7 +24,7 @@
 
     <div class="mt-8 mb-6">
         <a href="{{ route('admin.users.index') }}"
-           class="inline-block px-4 py-2 text-sm rounded-md bg-[#C7B98E] text-black font-semibold hover:bg-[#B8A67B]">
+           class="inline-block px-6 py-4 text-sm rounded-md bg-[#C7B98E] text-black font-semibold hover:bg-[#B8A67B]">
             Manage Users & Roles
         </a>
     </div>

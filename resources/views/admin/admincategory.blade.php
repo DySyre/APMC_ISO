@@ -24,7 +24,7 @@
                    placeholder="Search documents..."
                    class="w-full px-3 py-2 text-sm rounded bg-[#11140e] border border-slate-700 text-slate-200 focus:border-[#C7B98E] focus:ring-0">
 
-            <button class="px-4 py-2 text-sm rounded bg-[#C7B98E] text-black font-semibold hover:bg-[#B8A67B]">
+            <button class="px-4 py-2 text-sm rounded bg-[#C7B98E] text-black font-semibold hover:bg-[#B8A67B] cursor-pointer">
                 Search
             </button>
         </div>
@@ -50,10 +50,10 @@
                    class="block w-full text-sm text-slate-300
                           file:mr-4 file:rounded-md file:border-0
                           file:bg-[#C7B98E] file:px-4 file:py-2 file:text-black file:font-semibold
-                          hover:file:bg-[#B8A67B]">
+                          hover:file:bg-[#B8A67B cursor-pointer] focus:outline-none focus:ring-2 focus:ring-[#C7B98E]/50 focus:ring-offset-2" />
 
             <button type="submit"
-                    class="rounded-md bg-[#C7B98E] px-4 py-2 text-sm font-semibold text-black hover:bg-[#B8A67B]">
+                    class="rounded-md bg-[#C7B98E] px-4 py-2 text-sm font-semibold text-black hover:bg-[#B8A67B] cursor-pointer">
                 Upload
             </button>
         </form>
@@ -79,15 +79,16 @@
                         <div class="flex items-center gap-2">
                             {{-- VIEW --}}
                             <a href="{{ $doc['url'] }}"
+                               target="_blank"
                                class="text-xs px-3 py-1 rounded bg-[#C7B98E] text-black font-semibold hover:bg-[#B8A67B]"
-                               target="_blank">
-                                View
+                               title="View PDF">
+                                <x-eye-icon />
                             </a>
 
                             {{-- DOWNLOAD --}}
                             <a href="{{ $doc['url'] }}" download="{{ $doc['name'] }}"
                                class="text-xs px-3 py-1 rounded bg-amber-500 text-black font-semibold hover:bg-amber-400">
-                                Download
+                               <x-download-icon />
                             </a>
 
                             {{-- DELETE --}}
@@ -98,8 +99,9 @@
                                 @method('DELETE')
 
                                 <button type="submit"
-                                        class="text-xs px-3 py-1 rounded border border-red-500/40 text-red-300 hover:bg-red-600/20">
-                                    Delete
+                                        class="text-xs px-3 py-1 rounded bg-red-600 text-white font-semibold hover:bg-red-500 cursor-pointer"
+                                        title="Delete PDF">
+                                    <x-delete-icon />
                                 </button>
                             </form>
                         </div>
