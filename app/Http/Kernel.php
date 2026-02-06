@@ -7,8 +7,7 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 class Kernel extends HttpKernel
 {
     /**
-     * Global HTTP middleware stack.
-     * Run during every request.
+     * Global middleware.
      */
     protected $middleware = [
         \App\Http\Middleware\TrustHosts::class,
@@ -21,7 +20,7 @@ class Kernel extends HttpKernel
     ];
 
     /**
-     * Route middleware groups.
+     * Middleware groups (web/api).
      */
     protected $middlewareGroups = [
         'web' => [
@@ -35,20 +34,30 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+            \Illuminate\Routing\Middleware\ThrottleRequests::class . ':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
 
     /**
-     * Middleware aliases (Laravel 11/12 style).
-     *
-     * Aliases may be used to conveniently assign middleware to routes.
+     * Route middleware aliases.
      */
     protected $middlewareAliases = [
-        'auth' => \App\Http\Middleware\Authenticate::class,
-        'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'auth'  => \App\Http\Middleware\Authenticate::class,
+        'role'  => \App\Http\Middleware\RoleMiddleware::class, // ← REQUIRED
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        // add more aliases later if needed
+        'redirect.role' => \App\Http\Middleware\RedirectByRole::class,
+
+    ];
+
+    /**
+     * 🔥 REQUIRED FOR LARAVEL 12 🔥
+     * Defines execution order of route middleware.
+     */
+    protected $middlewarePriority = [
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\Auth\Middleware\Authenticate::class,
+        \App\Http\Middleware\RoleMiddleware::class,
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
     ];
 }

@@ -60,3 +60,21 @@
     </script>
 </body>
 </html>
+
+<script>
+function togglePasswordVisibility(id, btn) {
+    const input = document.getElementById(id);
+    const eyeOpen = btn.querySelector('[data-eye-open]');
+    const eyeClosed = btn.querySelector('[data-eye-closed]');
+
+    if (input.type === "password") {
+        input.type = "text";
+        eyeOpen.classList.remove("hidden");
+        eyeClosed.classList.add("hidden");
+    } else {
+        input.type = "password";
+        eyeOpen.classList.add("hidden");
+        eyeClosed.classList.remove("hidden");
+    }
+}
+</script>

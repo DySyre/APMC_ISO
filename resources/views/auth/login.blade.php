@@ -33,18 +33,10 @@
                 </div>
 
                 {{-- Password --}}
-                <div>
-                    <x-input-label for="password" :value="__('Password')" />
-                    <x-text-input
-                        id="password"
-                        class="block mt-1 w-full bg-[#1A1D17] border border-[#3E4636]
-                               text-gray-100 px-4 py-2.5 rounded-md focus:ring-2
-                               focus:ring-[#C7B98E] outline-none"
-                        type="password"
-                        name="password"
-                        required />
-                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                </div>
+                <x-class-field id="password" label="Password">
+                    <x-class-password id="password" name="password" />
+                </x-class-field>
+
 
                 {{-- Remember Me --}}
                 <div class="flex items-center justify-between">

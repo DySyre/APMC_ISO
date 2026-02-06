@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Ilovepdf\Ilovepdf;
 use Ilovepdf\Editpdf\TextElement;
@@ -20,14 +21,24 @@ class DocumentController extends Controller
         'officer-career-advisory'           => ['label' => 'Officer Career Advisory',           'dir' => 'officer-career-advisory'],
     ];
 
+    /**
+     * -----------------------------------------
+     * DOCUMENT DASHBOARD 
+     * -----------------------------------------
+     */
     public function index()
     {
-        $user = User::find(session('visitor_user_id'));
+        $user = Auth::user();
+
+        if (! $user) {
+            abort(401, 'Not authenticated.');
+        }
 
         // Build folders for UI
         $folders = collect($this->categories)->map(function ($info, $slug) use ($user) {
+
             // find leader assigned to this category (if any)
-            $leader = User::where('role', 2)
+            $leader = User::where('role', User::ROLE_LEADER)
                 ->where('leader_category', $slug)
                 ->first();
 
@@ -35,25 +46,30 @@ class DocumentController extends Controller
             $reason  = null;
 
             // ADMIN
-            if ((int)$user->role === 1) {
+            if ($user->role == User::ROLE_ADMIN) {
                 $allowed = true;
             }
 
             // LEADER: only their assigned category
-            elseif ((int)$user->role === 2) {
+            elseif ($user->role == User::ROLE_LEADER) {
                 $allowed = ($user->leader_category === $slug);
-                if (! $allowed) $reason = 'Not assigned to your supervision category.';
+                if (! $allowed) {
+                    $reason = 'Not assigned to your supervision category.';
+                }
             }
 
             // USER
             else {
-                // if no leader assigned yet, allow everyone
+                // if no leader assigned, allow everyone
                 if (! $leader) {
                     $allowed = true;
-                } else {
-                    // leader exists -> must match leader's division
+                } 
+                else {
+                    // leader exists → division must match
                     $allowed = ($leader->division === $user->division);
-                    if (! $allowed) $reason = 'Restricted to another division.';
+                    if (! $allowed) {
+                        $reason = 'Restricted to another division.';
+                    }
                 }
             }
 
@@ -66,151 +82,124 @@ class DocumentController extends Controller
             ];
         })->values();
 
-        return view('documents.index', [
-            'user'    => $user,
-            'folders' => $folders,
-        ]);
+        return view('documents.index', compact('user', 'folders'));
     }
 
+    /**
+     * -----------------------------------------
+     * CATEGORY VIEW
+     * -----------------------------------------
+     */
     public function category(string $category)
-{
-    $user = User::find(session('visitor_user_id'));
+    {
+        $user = Auth::user();
 
-    // ✅ If no session / user not found
-    if (! $user) {
-        abort(403, 'Please login first.');
-    }
+        if (! $user) {
+            abort(403, 'Please login first.');
+        }
 
-    // ✅ If division not assigned yet
-    if (blank($user->division)) {
-        abort(403, 'Your division is not assigned yet. Please ask the admin to assign your division.');
-    }
+        // Division required for Users/Leaders
+        if (blank($user->division)) {
+            abort(403, 'Your division is not assigned yet.');
+        }
 
-    if (! isset($this->categories[$category])) {
-        abort(404);
-    }
+        if (! isset($this->categories[$category])) {
+            abort(404);
+        }
 
-    // ✅ Admin always allowed
-    if ((int) $user->role === 1) {
-        return $this->renderCategory($user, $category);
-    }
+        // ADMIN always allowed
+        if ($user->role == User::ROLE_ADMIN) {
+            return $this->renderCategory($user, $category);
+        }
 
-    // ✅ Leader/User must be allowed by their division
-    $allowed = DB::table('division_category_access')
-        ->where('division', $user->division)
-        ->where('category', $category)
-        ->exists();
-
-    if (! $allowed) {
-        abort(403, 'Your division does not have access to this category.');
-    }
-
-    return $this->renderCategory($user, $category);
-}
-
-/**
- * ✅ Keeps your old listing logic clean (no changes needed elsewhere)
- */
-protected function renderCategory(User $user, string $category)
-{
-    $info = $this->categories[$category];
-
-    $search = request('search');
-
-    $files = Storage::disk('public')->files('documents/'.$info['dir']);
-
-    $documents = collect($files)->map(function ($path) use ($category) {
-        return [
-            'name'     => basename($path),
-            'url'      => Storage::url($path),
-            'edit_url' => route('documents.edit', [
-                'category' => $category,
-                'filename' => basename($path),
-            ]),
-        ];
-    });
-
-    if ($search) {
-        $documents = $documents->filter(fn ($doc) =>
-            str_contains(strtolower($doc['name']), strtolower($search))
-        );
-    }
-
-    $perPage = 10;
-    $currentPage = request()->get('page', 1);
-    $pagedDocs = $documents->forPage($currentPage, $perPage);
-
-    $paginator = new \Illuminate\Pagination\LengthAwarePaginator(
-        $pagedDocs,
-        $documents->count(),
-        $perPage,
-        $currentPage,
-        [
-            'path'  => request()->url(),
-            'query' => request()->query(),
-        ]
-    );
-
-    return view('documents.category', [
-        'user'          => $user,
-        'category'      => $category,
-        'categoryLabel' => $info['label'],
-        'documents'     => $paginator,
-        'search'        => $search,
-    ]);
-}
-
-protected function authorizeCategoryAccess(User $user, string $category): void
-{
-    // Admin -> allow
-    if ((int)$user->role === 1) return;
-
-    // Leader -> allow if this category is enabled for their division
-    // (optional: you can allow leaders to override even if not enabled, but usually no)
-    if ((int)$user->role === 2) {
+        // LEADER / USER → must have access
         $allowed = DB::table('division_category_access')
             ->where('division', $user->division)
             ->where('category', $category)
             ->exists();
 
-        if (! $allowed) abort(403, 'Unauthorized.');
-        return;
+        if (! $allowed) {
+            abort(403, 'Your division does not have access to this category.');
+        }
+
+        return $this->renderCategory($user, $category);
     }
 
-    // User -> allow if category enabled for their division
-    $allowed = DB::table('division_category_access')
-        ->where('division', $user->division)
-        ->where('category', $category)
-        ->exists();
+    /**
+     * -----------------------------------------
+     * RENDER FILE LIST
+     * -----------------------------------------
+     */
+    protected function renderCategory(User $user, string $category)
+    {
+        $info = $this->categories[$category];
+        $search = request('search');
 
-    if (! $allowed) abort(403, 'Unauthorized.');
-}
+        $files = Storage::disk('public')->files('documents/' . $info['dir']);
 
+        $documents = collect($files)->map(function ($path) use ($category) {
+            return [
+                'name'     => basename($path),
+                'url'      => Storage::url($path),
+                'edit_url' => route('documents.edit', [
+                    'category' => $category,
+                    'filename' => basename($path),
+                ]),
+            ];
+        });
+
+        if ($search) {
+            $documents = $documents->filter(fn ($doc) =>
+                str_contains(strtolower($doc['name']), strtolower($search))
+            );
+        }
+
+        // Manual pagination
+        $perPage = 10;
+        $page = request()->get('page', 1);
+        $paged = $documents->forPage($page, $perPage);
+
+        $paginator = new \Illuminate\Pagination\LengthAwarePaginator(
+            $paged,
+            $documents->count(),
+            $perPage,
+            $page,
+            [
+                'path'  => request()->url(),
+                'query' => request()->query(),
+            ]
+        );
+
+        return view('documents.category', [
+            'user'          => $user,
+            'category'      => $category,
+            'categoryLabel' => $info['label'],
+            'documents'     => $paginator,
+            'search'        => $search,
+        ]);
+    }
 
     /**
-     * Edit a PDF: example adds a "CONFIDENTIAL" text label and saves a new file.
+     * -----------------------------------------
+     * PDF EDITING (iLovePDF)
+     * -----------------------------------------
      */
     public function edit(string $category, string $filename)
     {
-        $user = User::find(session('visitor_user_id'));
-        // $user = auth()->user(); auth
-
+        $user = Auth::user();
 
         if (! isset($this->categories[$category])) {
             abort(404);
         }
 
         $info = $this->categories[$category];
+        $relative = 'documents/' . $info['dir'] . '/' . $filename;
 
-        // Relative path on the public disk
-        $relativePath = 'documents/'.$info['dir'].'/'.$filename;
-
-        if (! Storage::disk('public')->exists($relativePath)) {
+        if (! Storage::disk('public')->exists($relative)) {
             abort(404, 'PDF not found');
         }
 
-        // Absolute local path for iLovePDF
-        $localPath = Storage::disk('public')->path($relativePath);
+        $localPath = Storage::disk('public')->path($relative);
 
         // Init iLovePDF
         $ilovepdf = new Ilovepdf(
@@ -218,44 +207,27 @@ protected function authorizeCategoryAccess(User $user, string $category): void
             config('services.ilovepdf.secret')
         );
 
-        // Create edit task
         $task = $ilovepdf->newTask('editpdf');
-
-        // Add the file
         $task->addFile($localPath);
 
-        $textElem = new TextElement();
-        $textElem
-            ->setText('CONFIDENTIAL')
+        $text = new TextElement();
+        $text->setText('CONFIDENTIAL')
             ->setCoordinates(100, 100)
             ->setFontSize(20)
             ->setFontColor('#FF0000')
             ->setOpacity(60)
-            ->setPages(1);  // Apply to first page only
+            ->setPages(1);
 
-        // Attach element to task
-        $task->addElement($textElem);
+        $task->addElement($text);
 
-        // Optional: change output file name (without extension)
-        $outputBaseName = pathinfo($filename, PATHINFO_FILENAME);
-        $task->setOutputFilename($outputBaseName.'_edited');
+        $outputName = pathinfo($filename, PATHINFO_FILENAME) . '_edited';
+        $task->setOutputFilename($outputName);
 
-        // Run task
         $task->execute();
+        $task->download(Storage::disk('public')->path('documents/' . $info['dir']));
 
-        // Download back into the same documents directory
-        $outputDir = Storage::disk('public')->path('documents/'.$info['dir']);
-        $task->download($outputDir);
-
-        // Build public URL for the new file
-        $editedFilename = $outputBaseName.'_edited.pdf';
-        $editedRelativePath = 'documents/'.$info['dir'].'/'.$editedFilename;
-        $editedUrl = Storage::url($editedRelativePath);
-
-        // You can redirect back to category view, or show a "success" page
         return redirect()
             ->route('documents.category', $category)
-            ->with('status', "Edited PDF created: {$editedFilename}")
-            ->with('edited_url', $editedUrl);
+            ->with('status', "Edited PDF created: {$outputName}.pdf");
     }
 }
