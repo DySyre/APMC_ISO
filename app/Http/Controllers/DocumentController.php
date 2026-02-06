@@ -37,11 +37,6 @@ class DocumentController extends Controller
         // Build folders for UI
         $folders = collect($this->categories)->map(function ($info, $slug) use ($user) {
 
-            // find leader assigned to this category (if any)
-            $leader = User::where('role', User::ROLE_LEADER)
-                ->where('leader_category', $slug)
-                ->first();
-
             $allowed = false;
             $reason  = null;
 
@@ -60,15 +55,17 @@ class DocumentController extends Controller
 
             // USER
             else {
-                // if no leader assigned, allow everyone
-                if (! $leader) {
-                    $allowed = true;
-                } 
-                else {
-                    // leader exists → division must match
-                    $allowed = ($leader->division === $user->division);
+                if (blank($user->division)) {
+                    $allowed = false;
+                    $reason = 'Your division is not assigned yet.';
+                } else {
+                    $allowed = DB::table('division_category_access')
+                        ->where('division', $user->division)
+                        ->where('category', $slug)
+                        ->exists();
+
                     if (! $allowed) {
-                        $reason = 'Restricted to another division.';
+                        $reason = 'Your division does not have access to this category.';
                     }
                 }
             }

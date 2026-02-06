@@ -45,11 +45,15 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        $category = $user->firstAllowedCategory();
+
         // Redirect based on user role (consistent with VisitorController)
         return match ((int) $user->role) {
             1 => redirect()->route('admin.dashboard'),
             2 => redirect()->route('leader.dashboard'),
-            3 => redirect()->route('documents.index'),
+            3 => $category
+                ? redirect()->route('documents.category', $category)
+                : redirect()->route('documents.index'),
             default => abort(403),
         };
     }

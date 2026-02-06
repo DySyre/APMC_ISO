@@ -22,8 +22,6 @@
             'Management',
             'Radio',
             'Intel',
-            'Artillery',
-            'Medical Corps',
         ];
     @endphp
 
