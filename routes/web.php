@@ -7,6 +7,7 @@ use App\Http\Controllers\LeaderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\RoleMiddleware;
 use App\Models\User;
 
 /*
@@ -19,14 +20,26 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
+Route::post('/logout', [VisitorController::class, 'destroy'])
+    ->name('logout');
+
 Route::get('/', function () {
     return view('landing');
 })->name('landing');
 
-
 Route::post('/visitor/enter', [VisitorController::class, 'enter'])
     ->name('visitor.enter');
+    
+Route::get('/debug-user', function () {
+    return [
+        'auth_user' => auth()->user(),
+        'id'        => auth()->id(),
+        'role'      => auth()->user()->role ?? 'NULL',
+        'division'  => auth()->user()->division ?? 'NULL',
+    ];
+})->middleware('auth');
 
+Route::get('/dashboard')->middleware('redirect.role');
 
 
 /*
@@ -46,7 +59,7 @@ Route::get('/dashboard', function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:' . User::ROLE_ADMIN])->group(function () {
+Route::middleware(['auth', RoleMiddleware::class . ':1'])->group(function () {
 
     Route::get('/admin', [AdminController::class, 'index'])
         ->name('admin.dashboard');
@@ -74,6 +87,17 @@ Route::middleware(['auth', 'role:' . User::ROLE_ADMIN])->group(function () {
     Route::delete('/admin/documents/category/{category}/{filename}', [AdminDocumentController::class, 'destroy'])
         ->where('filename', '.*')
         ->name('admin.documents.delete');
+
+    // admin view of documents (with upload/replace)
+    Route::get('/admin/documents/category/{category}', [AdminDocumentController::class, 'category'])
+        ->name('admin.admincategory');
+
+    Route::post('/admin/documents/category/{category}/upload', [AdminDocumentController::class, 'upload'])
+    ->name('admin.upload');
+
+    Route::delete('/admin/documents/category/{category}/{filename}', [AdminDocumentController::class, 'destroy'])
+        ->where('filename', '.*')
+        ->name('admin.delete');
 });
 
 
@@ -83,8 +107,7 @@ Route::middleware(['auth', 'role:' . User::ROLE_ADMIN])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-
-Route::middleware(['auth', 'role:' . User::ROLE_LEADER])->group(function () {
+Route::middleware(['auth', RoleMiddleware::class . ':2'])->group(function () {
 
     Route::get('/leader', [LeaderController::class, 'index'])
         ->name('leader.dashboard');
@@ -94,14 +117,15 @@ Route::middleware(['auth', 'role:' . User::ROLE_LEADER])->group(function () {
 });
 
 
+
+
 /*
 |--------------------------------------------------------------------------
-| DOCUMENT ACCESS (USERS + LEADERS)
-| role = 2,3
+| DOCUMENT ACCESS (role = 2,3)
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:' . User::ROLE_LEADER . ',' . User::ROLE_USER])->group(function () {
+Route::middleware(['auth', RoleMiddleware::class . ':2,3'])->group(function () {
 
     Route::get('/documents', [DocumentController::class, 'index'])
         ->name('documents.index');

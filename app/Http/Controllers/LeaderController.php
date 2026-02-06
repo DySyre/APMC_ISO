@@ -77,9 +77,7 @@ class LeaderController extends Controller
     // ✅ ADD THIS (this is what you were missing)
     protected function currentUser(): ?User
     {
-        $id = session('visitor_user_id');
-        if (! $id) return null;
-
-        return User::find($id);
+        return auth()->user();   // ← FIXED
     }
+
 }

@@ -14,46 +14,43 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
     public function create(): View
     {
         return view('auth.register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-        'first_name'      => ['required', 'string', 'max:255'],
-        'last_name'       => ['required', 'string', 'max:255'],
-        'badge_number'    => ['required', 'string', 'max:255', 'unique:users,badge_number'],
-        'division'        => ['nullable', 'string', 'max:255'],
-        'created_at'      => [now(), 'date'],
-        'email'           => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-        'password'        => ['required', 'confirmed', Rules\Password::defaults()],
-    ]);
+            'first_name'    => ['required', 'string', 'max:255'],
+            'last_name'     => ['required', 'string', 'max:255'],
+            'badge_number'  => ['required', 'string', 'max:255', 'unique:users,badge_number'],
+            'division'      => ['nullable', 'string', 'max:255'],
+            'email'         => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password'      => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
 
         $user = User::create([
-            'first_name'     => $request->first_name,
-            'last_name'      => $request->last_name,
-            'badge_number'   => $request->badge_number,
-            'division'       => $request->division,
-            'role'           => 3,
-            'name'           => $request->first_name . ' ' . $request->last_name,
-            'email'          => $request->email,
-            'password'       => Hash::make($request->password),
+            'first_name'   => $request->first_name,
+            'last_name'    => $request->last_name,
+            'badge_number' => $request->badge_number,
+            'division'     => $request->division,
+            'role'         => 3, // ROLE_USER
+            'name'         => $request->first_name . ' ' . $request->last_name,
+            'email'        => $request->email,
+            'password'     => Hash::make($request->password),
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Redirect based on user role (consistent with VisitorController)
+        return match ((int) $user->role) {
+            1 => redirect()->route('admin.dashboard'),
+            2 => redirect()->route('leader.dashboard'),
+            3 => redirect()->route('documents.index'),
+            default => abort(403),
+        };
     }
 }

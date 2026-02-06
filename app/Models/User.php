@@ -22,6 +22,16 @@ class User extends Authenticatable
     const ROLE_LEADER = 2;
     const ROLE_USER   = 3;
 
+    public static function roleName($role): string
+    {
+        return match ($role) {
+            1 => 'Admin',
+            2 => 'Leader',
+            3 => 'User',
+            default => 'Unknown',
+        };
+    }
+
     protected $fillable = [
     'name',
     'first_name',
@@ -62,11 +72,6 @@ class User extends Authenticatable
 {
     return "{$this->first_name} {$this->last_name}";
 }
-    // Use badge_number for authentication
-    public function getAuthIdentifierName()
-{
-    return 'badge_number';
-}
 
 public function isAdmin(): bool
 {
@@ -81,6 +86,22 @@ public function isLeader(): bool
 public function isUser(): bool
 {
     return $this->role === self::ROLE_USER;
+}
+
+public function hasRole($roles): bool
+{
+    $roles = is_array($roles) ? $roles : explode(',', $roles);
+    return in_array($this->role, $roles);
+}
+
+public function inDivision($division): bool
+{
+    return $this->division === $division;
+}
+
+public function managesDivision(): bool
+{
+    return $this->isLeader() && !empty($this->division);
 }
 
 }

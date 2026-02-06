@@ -5,11 +5,11 @@
 <body class="bg-[#0A0C07] text-white font-sans">
 
     <!-- Hero Section -->
-    <section class="relative bg-cover bg-center h-screen flex items-center justify-center" style="background-image: url('https://images.unsplash.com/photo-1605296867304-46d5465a13f1?q=80&w=2070&auto=format');">
+    <section class="relative bg-cover bg-center h-screen flex items-center justify-center" style="background-image: url('{{ asset('image/afpbanner.jpg') }}');">
         <div class="absolute inset-0 bg-black/60"></div>
 
         <div class="relative z-10 max-w-4xl text-center px-6">
-            <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-wide uppercase">Armed Forces of the Philippines</h1>
+            {{-- <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-wide uppercase">Armed Forces of the Philippines</h1> --}}
             <p class="text-gray-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
                 Dedicated to protecting the sovereignty, peace, and security of the nation.
             </p>
