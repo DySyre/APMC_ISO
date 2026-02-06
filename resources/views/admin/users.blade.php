@@ -16,14 +16,12 @@
 
     @php
         $divisionOptions = [
-            'Infantry',
-            'Scout Ranger',
-            'AirForce',
-            'Management',
-            'Radio',
-            'Intel',
-            'Artillery',
-            'Medical Corps',
+            'Admin Division',
+            'Personnel Services',
+            'Recruitment Division',
+            'Career Management',
+            'Enlisted Personnel Class Advisory',
+            'Office Career Advisory',
         ];
     @endphp
 
