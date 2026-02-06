@@ -49,11 +49,15 @@ class VisitorController extends Controller
         }
     }
 
+    $category = $user->firstAllowedCategory();
+
     // Role-based redirect
     return match ($user->role) {
         User::ROLE_ADMIN  => to_route('admin.dashboard'),
         User::ROLE_LEADER => to_route('leader.dashboard'),
-        User::ROLE_USER   => to_route('documents.index'),
+        User::ROLE_USER   => $category
+            ? to_route('documents.category', $category)
+            : to_route('documents.index'),
 
         default => abort(403, 'Unknown role.'),
     };
